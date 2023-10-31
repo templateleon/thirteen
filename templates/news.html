@@ -1,0 +1,114 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+{% load custom_tags %}
+
+
+{% block title %}
+News
+{% endblock title %}
+
+
+{% block content %}
+{% autoescape on %}
+
+{% if news %} <!--Проверка на наличие новостей-->
+    <h1>Все новости</h1>
+    <h5>Количество новостей: {{ news|length }}</h5>
+
+    {% if perms.News.new_create or perms.News.article_create %}
+    <a href="{% url 'new_create' %}">Добавить Новость</a>
+    <a href="{% url 'article_create' %}">Добавить Статью</a>
+
+
+
+    {% endif %}
+
+
+    <table>
+        <tr bgcolor='white'>
+            <td>id</td>
+            <td>Заголовок </td>
+            <td>Дата публикации</td>
+            <td>Содержание</td>
+            <td>Категория</td>
+
+                {% if perms.News.new_create or perms.News.article_create %}
+                <td>Действия</td>
+                {% endif %}
+            <td>Категория</td>
+
+        </tr>
+        {% for n in news %}
+        <tr bgcolor="{% cycle	'#c0c0c0' 'white' %}">
+            <td>{{ n.id }}</td>
+            <td>{{ n.title|truncatechars:20|censor }}</td>
+            <td>{{ n.dateCreation }}</td>
+            <td><a href="{% url 'post_detail' pk=n.id %}">{{ n.text|truncatechars:40|censor }}</a></td>
+            <style>
+                    a {
+                    color: Green; /* Цвет ссылок */,
+                    text-decoration: none; /* Без подчёркивания */
+                    }
+                    a:hover {
+                    color: Black; /* Цвет текста при наведении */
+                    }
+            </style>
+            <td>{{n.categoryType}}</td>
+            <td>
+            {% if n.categoryType == 'NV' %}
+
+                {% if perms.News.new_edit %}
+                    <a href="{% url 'new_edit' pk=n.id %}">Изменить /</a>
+                {% endif %}
+                {% if perms.News.new_delete %}
+                    <a href="{% url 'new_delete' n.id %}">Удалить новость</a>
+                {% endif %}
+            {% elif n.categoryType == 'AR' %}
+                {% if perms.News.article_edit %}
+                    <a href="{% url 'article_edit' pk=n.id %}">Изменить /</a>
+                {% endif %}
+                {% if perms.News.article_delete %}
+                    <a href="{% url 'article_delete' n.id %}">Удалить статью</a>
+                {% endif %}
+            {%endif%}
+
+            </td>
+            {% for cat in n.category.all %}
+           <td> <a> {{ cat }} </a> </td>
+            {% endfor %}
+        </tr>
+
+
+        {% endfor %}
+    </table>
+{% else %}
+    <h2>Новостей нет...</h2>
+{% endif %}
+{# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?page={{ page_obj.previous_page_number }}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?page={{ page_obj.next_page_number }}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?page={{ page_obj.paginator.num_pages }}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+{% comment %}
+текст комментария
+{% endcomment %}
+
+{% endautoescape %}
+{% endblock content %}

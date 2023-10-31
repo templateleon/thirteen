@@ -1,0 +1,20 @@
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+New
+{% endblock title %}
+
+{% block content %}
+
+    <h3>Статья № {{ new.id }}</h3>
+    <h1>Заголовок </h1>
+    <h4> {{ new.title|censor }}</h4>
+    <h1>Текст статьи</h1>
+    <h4> {{ new.text|censor }}</h4>
+    <h4>{{new.postCategory}}</h4>
+    <h2>Дата загрузки - {{new.dateCreation|date:'d M Y'}}</h2>
+
+
+{% endblock content %}
